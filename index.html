@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Own Book Recommender</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #3498db;
+        }
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .upload-section {
+            background-color: #e8f4fd;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .upload-steps {
+            list-style-type: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .upload-steps li {
+            margin-bottom: 15px;
+            padding-left: 35px;
+            position: relative;
+        }
+        .upload-steps li::before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 25px;
+            height: 25px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-size: 14px;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-weight: 600;
+        }
+        .file-label:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .quote-container {
+            font-style: italic;
+            text-align: center;
+            margin: 30px 0;
+            min-height: 60px;
+            transition: opacity 0.5s ease-in-out;
+            font-size: 1.2em;
+            color: #34495e;
+        }
+        .booklists-container{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .booklist {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+        }
+        .booklist h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .booklist p{
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #2ecc71;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        .cta-button:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+        .book-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .book-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .book-image {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            margin-right: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .book-details {
+            flex-grow: 1;
+        }
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+        .book-author {
+            color: #7f8c8d;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+        .book-score {
+            font-size: 1.05em;
+            font-weight: bold;
+            color: #333;
+        }
+        .cooking-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        #model-ready-message {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .booklists {
+                flex-direction: column;
+            }
+            .booklist {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Own Book Recommender</h1>
+        <p>Struggling to choose your next book from a long lists of book recommendations?</p>
+        <p>No issues! Embark on a personalized literary journey based on your unique reading history!</p>
+        <p>Upload your Goodreads reading history, and we'll tell you if you had read the book, how much would you have rated it out of 5.</p> 
+        <p>Get these predicted scores against each book from famous book lists </p>
+        <p>Compare your predicted ratings with friends and explore new literary horizons together!</p>
+
+        <div class="upload-section">
+            <h2>Upload Your Reading History</h2>
+            <p>Follow these simple steps to get started:</p>
+            <ol class="upload-steps">
+                <li>Log in to your <a href="https://www.goodreads.com/review/import" target="_blank">Goodreads account</a></li>
+                <li>Click on the 'Export' option. This will download a csv file on your device. (Dont' worry, this doesn't contain any of your personal information. Only book details and your ratings)</li>
+                <li>Upload the file here without any modifications</li>
+            </ol>
+            <div class="file-upload-container">
+                <input type="file" id="csv-file" class="file-input" accept=".csv" required>
+                <label for="csv-file" class="file-label">Select Your File</label>
+                <span id="file-name"></span>
+            </div>
+            <button onclick="uploadCSV()" class="cta-button">Create Your Personalized Model</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <p>
+                Your personalized model is now cooking
+                <span class="cooking-icon"></span>. 
+                This process may take up to 3-4 mins, depending on your reading history. 
+                Till then, you may reflect on quotes from some of the most famous books of our time...
+            </p>
+            <div id="quote-container" class="quote-container"></div>
+        </div>
+
+
+        <!-- Add this new div for the ready message -->
+        <div id="model-ready-message">
+            Your model is now ready. Unveil your predicted ratings for famous book lists below.
+        </div>
+    </div>
+
+    <div id="booklists" class="booklists-container">
+        <div class="booklist">
+            <h3>Obama's 2023 Reading List</h3>
+            <p>Explore President Obama's favorite books of 2023 and see how they resonate with your literary preferences.</p>
+            <button onclick="loadBooks('ObamaBooks')" class="cta-button">Reveal Your Predicted Ratings</button>
+            <div id="ObamaBooksList" class="book-list"></div>
+        </div>
+        <div class="booklist">
+            <h3>Pulitzer Prize Winners - 2024</h3>
+            <p>Discover how Pulitzer Prize-winning literature aligns with your reading tastes.</p>
+            <button onclick="loadBooks('PulitzerBooks')" class="cta-button">Unveil Your Predicted Ratings</button>
+            <div id="PulitzerBooksList" class="book-list"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // Your JavaScript code here
+        // Include the uploadCSV, loadBooks, and other functions
+
+        // Add this function to display rotating quotes
+        
+        const bookQuotes = [
+  "\"It matters not what someone is born, but what they grow to be.\" - J.K. Rowling, Harry Potter and the Goblet of Fire",
+  "\"I took a deep breath and listened to the old brag of my heart: I am, I am, I am.\" - Sylvia Plath, The Bell Jar",
+  "\"It's the possibility of having a dream come true that makes life interesting.\" - Paulo Coelho, The Alchemist",
+  "\"Whatever our souls are made of, his and mine are the same.\" - Emily Brontë, Wuthering Heights",
+  "\"The only way out of the labyrinth of suffering is to forgive.\" - John Green, Looking for Alaska",
+  "\"We accept the love we think we deserve.\" - Stephen Chbosky, The Perks of Being a Wallflower",
+  "\"Not all those who wander are lost.\" - J.R.R. Tolkien, The Fellowship of the Ring",
+  "\"I am no bird; and no net ensnares me: I am a free human being with an independent will.\" - Charlotte Brontë, Jane Eyre",
+  "\"It does not do to dwell on dreams and forget to live.\" - J.K. Rowling, Harry Potter and the Sorcerer's Stone",
+  "\"So we beat on, boats against the current, borne back ceaselessly into the past.\" - F. Scott Fitzgerald, The Great Gatsby",
+  "\"There are years that ask questions and years that answer.\" - Zora Neale Hurston, Their Eyes Were Watching God",
+  "\"All we have to decide is what to do with the time that is given us.\" - J.R.R. Tolkien, The Fellowship of the Ring",
+  "\"And, when you want something, all the universe conspires in helping you to achieve it.\" - Paulo Coelho, The Alchemist",
+  "\"It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness...\" - Charles Dickens, A Tale of Two Cities",
+  "\"I wanted you to see what real courage is, instead of getting the idea that courage is a man with a gun in his hand.\" - Harper Lee, To Kill a Mockingbird",
+  "\"We need never be hopeless because we can never be irreparably broken.\" - John Green, Looking for Alaska",
+  "\"It is our choices that show what we truly are, far more than our abilities.\" - J.K. Rowling, Harry Potter and the Chamber of Secrets",
+  "\"Beware; for I am fearless, and therefore powerful.\" - Mary Shelley, Frankenstein",
+  "\"There is some good in this world, and it's worth fighting for.\" - J.R.R. Tolkien, The Two Towers",
+  "\"Whatever you're meant to do, do it now. The conditions are always impossible.\" - Doris Lessing, The Golden Notebook",
+  "\"The world breaks everyone, and afterward, many are strong at the broken places.\" - Ernest Hemingway, A Farewell to Arms",
+  "\"I am not afraid of storms, for I am learning how to sail my ship.\" - Louisa May Alcott, Little Women",
+  "\"We shall meet in the place where there is no darkness.\" - George Orwell, 1984",
+  "\"Memories warm you up from the inside. But they also tear you apart.\" - Haruki Murakami, Kafka on the Shore",
+  "\"Life appears to me too short to be spent in nursing animosity or registering wrongs.\" - Charlotte Brontë, Jane Eyre",
+  "\"Isn't it nice to think that tomorrow is a new day with no mistakes in it yet?\" - L.M. Montgomery, Anne of Green Gables",
+  "\"The only way out is through.\" - Robert Frost, A Servant to Servants",
+  "\"Atticus told me to delete the adjectives and I'd have the facts.\" - Harper Lee, To Kill a Mockingbird",
+  "\"You never really understand a person until you consider things from his point of view.\" - Harper Lee, To Kill a Mockingbird",
+  "\"I know not all that may be coming, but be it what it will, I'll go to it laughing.\" - Herman Melville, Moby-Dick",
+  "\"The human heart has hidden treasures, in secret kept, in silence sealed.\" - Charlotte Brontë, Evening Solace",
+  "\"We are all in the gutter, but some of us are looking at the stars.\" - Oscar Wilde, Lady Windermere's Fan",
+  "\"It's no use going back to yesterday, because I was a different person then.\" - Lewis Carroll, Alice's Adventures in Wonderland",
+  "\"The longer I live, the more I realize the impact of attitude on life.\" - Charles Swindoll, Strengthening Your Grip",
+  "\"Happiness can be found, even in the darkest of times, if one only remembers to turn on the light.\" - J.K. Rowling, Harry Potter and the Prisoner of Azkaban",
+  "\"The only true wisdom is in knowing you know nothing.\" - Plato, The Republic",
+  "\"To thine own self be true.\" - William Shakespeare, Hamlet",
+  "\"The past is never dead. It's not even past.\" - William Faulkner, Requiem for a Nun",
+  "\"There are infinite numbers between 0 and 1. There's .1 and .12 and .112 and an infinite collection of others. Of course, there is a bigger infinite set of numbers between 0 and 2, or between 0 and a million. Some infinities are bigger than other infinities.\" - John Green, The Fault in Our Stars",
+  "\"It is better to be hated for what you are than to be loved for what you are not.\" - André Gide, Autumn Leaves",
+  "\"It was a pleasure to burn.\" - Ray Bradbury, Fahrenheit 451",
+  "\"Everything was beautiful and nothing hurt.\" - Kurt Vonnegut, Slaughterhouse-Five",
+  "\"Life is to be lived, not controlled; and humanity is won by continuing to play in face of certain defeat.\" - Ralph Ellison, Invisible Man",
+  "\"The most difficult thing is the decision to act, the rest is merely tenacity.\" - Amelia Earhart, The Fun of It",
+  "\"Get busy living or get busy dying.\" - Stephen King, Rita Hayworth and Shawshank Redemption",
+  "\"There are darknesses in life and there are lights, and you are one of the lights, the light of all lights.\" - Bram Stoker, Dracula",
+  "\"I think we dream so we don't have to be apart for so long. If we're in each other's dreams, we can be together all the time.\" - A.A. Milne, Winnie-the-Pooh",
+  "\"The world is indeed full of peril, and in it there are many dark places; but still there is much that is fair, and though in all lands love is now mingled with grief, it grows perhaps the greater.\" - J.R.R. Tolkien, The Fellowship of the Ring",
+  "\"You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.\" - Dr. Seuss, Oh, The Places You'll Go!"
+];
+
+
+        document.getElementById('csv-file').addEventListener('change', function(e) {
+            var fileName = e.target.files[0].name;
+            document.getElementById('file-name').textContent = fileName;
+        });
+
+   
+        function uploadCSV() {
+            const fileInput = document.getElementById('csv-file');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            document.getElementById('loading').style.display = 'block';
+            startQuoteRotation(); // Start rotating quotes
+
+            axios.post('/upload-csv', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            .then(response => {
+                document.getElementById('loading').style.display = 'none';
+                // Show the ready message
+                document.getElementById('model-ready-message').style.display = 'block';
+                document.getElementById('booklists').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                console.error('Error:', error);
+                alert('Error preparing model. Please try again.');
+            });
+        }
+
+        function loadBooks(listName) {
+            const listDiv = document.getElementById(listName + 'List');
+            listDiv.innerHTML = 'Loading...';
+
+            axios.get(`/books/${listName}`)
+                .then(response => {
+                    const books = response.data;
+                    if (!Array.isArray(books) || books.length === 0) {
+                        throw new Error('Invalid or empty book data received');
+                    }
+                    listDiv.innerHTML = '';
+                    
+                    books.forEach((book, index) => {
+                        const bookDiv = document.createElement('div');
+                        bookDiv.className = 'book-item';
+                        bookDiv.innerHTML = `
+                            ${index + 1}) ${book.title}
+                            <span class="book-score"></span>
+                        `;
+                        listDiv.appendChild(bookDiv);
+                        
+                        // Get prediction for each book
+                        axios.post('/predict', { description: book.description })
+                            .then(response => {
+                                bookDiv.querySelector('.book-score').textContent = ` - Predicted Score: ${response.data.score.toFixed(2)}`;
+                            })
+                            .catch(error => console.error('Error predicting score:', error));
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading books:', error);
+                    listDiv.innerHTML = 'An error occurred while loading books.';
+                });
+        }
+
+        function sortBooks(listName) {
+            const listDiv = document.getElementById(listName + 'List');
+            const books = Array.from(listDiv.getElementsByClassName('book-item'));
+            
+            books.sort((a, b) => {
+                const scoreA = parseFloat(a.querySelector('.book-score').textContent.split(': ')[1]);
+                const scoreB = parseFloat(b.querySelector('.book-score').textContent.split(': ')[1]);
+                return scoreB - scoreA;
+            });
+
+            listDiv.innerHTML = '';
+            books.forEach((book, index) => {
+                book.firstChild.textContent = `${index + 1}) ${book.firstChild.textContent.split(') ')[1]}`;
+                listDiv.appendChild(book);
+            });
+        }
+
+        function displayRotatingQuotes(quotes) {
+            const quoteContainer = document.getElementById('quote-container');
+            let usedIndices = new Set();
+
+            function getRandomQuote() {
+                if (usedIndices.size === quotes.length) {
+                    usedIndices.clear(); // Reset when all quotes have been shown
+                }
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * quotes.length);
+                } while (usedIndices.has(randomIndex));
+                usedIndices.add(randomIndex);
+                return quotes[randomIndex];
+            }
+
+        function showNextQuote() {
+            quoteContainer.style.opacity = 0;
+            setTimeout(() => {
+                quoteContainer.textContent = getRandomQuote();
+                quoteContainer.style.opacity = 1;
+            }, 500);
+            }
+
+            showNextQuote(); // Show first quote immediately
+            setInterval(showNextQuote, 10000); // Change quote every 10 seconds
+            }
+
+        function startQuoteRotation() {
+            if (bookQuotes && bookQuotes.length > 0) {
+            displayRotatingQuotes(bookQuotes);
+            } else {
+            console.error('No quotes available');
+            }
+        }
+    </script>
+</body>
+</html>
