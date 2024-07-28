@@ -4,6 +4,9 @@
 
 This project is a personalized book recommender system that leverages your Goodreads reading history to predict how you would rate books from famous reading lists. It's designed to help you discover new books that align with your tastes, based on your past reading experiences.
 
+Check out this video demo of the Book Recommender in action:
+[![Book Recommender Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://youtu.be/35y6kJRjng4?si=z_RG16PuCc4CY-NK)
+
 ## Features
 
 - **CSV Upload**: Upload your Goodreads reading history to create a personalized model.
@@ -23,9 +26,9 @@ This project is a personalized book recommender system that leverages your Goodr
 ## Technology Stack
 
 - Frontend: HTML, CSS, JavaScript
-- Backend: [Your backend technology, e.g., Python with Flask]
+- Backend: [Python with Flask]
 - APIs: Google Books API (for fetching book descriptions)
-- Data Processing: [Any specific libraries or techniques used, e.g., pandas, scikit-learn]
+- Data Processing: Neural network with GPT 4 embeddings for book descriptions
 
 ## Setup and Installation
 
