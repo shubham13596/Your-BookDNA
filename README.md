@@ -4,8 +4,10 @@
 
 This project is a personalized book recommender system that leverages your Goodreads reading history to predict how you would rate books from famous reading lists. It's designed to help you discover new books that align with your tastes, based on your past reading experiences.
 
-Check out this video demo of the Book Recommender in action:
-[![Book Recommender Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://youtu.be/35y6kJRjng4?si=z_RG16PuCc4CY-NK)
+It's now available in production. You can try it on your Goodreads data! 
+Website: https://bookrecommendations1-hcr77cz3ga-el.a.run.app
+
+Check out this video demo of the Book Recommender in action:(https://youtu.be/35y6kJRjng4?si=z_RG16PuCc4CY-NK)
 
 ## Features
 
@@ -72,12 +74,10 @@ Check out this video demo of the Book Recommender in action:
 
 Contributions to improve the Book Recommender are welcome! Please feel free to submit a Pull Request.
 
-## License
-
-[Include your chosen license here]
 
 ## Acknowledgements
 
 - Barack Obama for his annual book recommendations
 - Goodreads for providing exportable reading history
 - Google Books API for book information
+- Claude Sonnet 
