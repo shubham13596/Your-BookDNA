@@ -13,7 +13,7 @@ The limitation with the current product is that I can show predictions only if y
 It's now available in production. You can try it on your Goodreads data! 
 Website: https://bookrecommendations1-hcr77cz3ga-el.a.run.app
 
-Check out this video demo of the Book Recommender in action:(https://youtu.be/35y6kJRjng4?si=z_RG16PuCc4CY-NK)
+Check out this video demo of the Book Recommender in action: https://youtu.be/OSqO04dSBqQ
 
 Happy to hear feedback, comments, and critiques.
 
